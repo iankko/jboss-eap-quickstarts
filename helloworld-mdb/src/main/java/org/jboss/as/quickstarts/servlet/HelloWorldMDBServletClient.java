@@ -86,9 +86,9 @@ public class HelloWorldMDBServletClient extends HttpServlet {
             String hostname = System.getenv("HOSTNAME");
             connectionFactory = new ActiveMQSslConnectionFactory("ssl://" + hostname + ":61617");
             try {
-                connectionFactory.setTrustStore(new File("/etc/eap-secret-volume/truststore.ks").toURI().toString());
+                connectionFactory.setTrustStore(new File("/etc/eap-secret-volume/client_truststore.jks").toURI().toString());
                 connectionFactory.setTrustStorePassword("password");
-                connectionFactory.setKeyStore(new File("/etc/eap-secret-volume/keystore.ks").toURI().toString());
+                connectionFactory.setKeyStore(new File("/etc/eap-secret-volume/client_keystore.jks").toURI().toString());
                 connectionFactory.setKeyStorePassword("password");
             } catch (Exception e) {
                 throw new Error("KeyStore or TrustStore location was invalid:", e);
