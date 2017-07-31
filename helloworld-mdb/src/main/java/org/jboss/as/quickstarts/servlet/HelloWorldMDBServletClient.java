@@ -16,6 +16,10 @@
  */
 package org.jboss.as.quickstarts.servlet;
 
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.ActiveMQSslConnectionFactory;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -55,8 +59,9 @@ public class HelloWorldMDBServletClient extends HttpServlet {
 
     private static final int MSG_COUNT = 5;
 
-    @Resource(mappedName = "java:/ConnectionFactory")
-    private ConnectionFactory connectionFactory;
+    //@Resource(mappedName = "java:/ConnectionFactory")
+    //private ConnectionFactory connectionFactory;
+    private ActiveMQSslConnectionFactory connectionFactory;
 
     @Resource(mappedName = "java:/queue/HELLOWORLDMDBQueue")
     private Queue queue;
@@ -78,6 +83,16 @@ public class HelloWorldMDBServletClient extends HttpServlet {
                 destination = queue;
             }
             out.write("<p>Sending messages to <em>" + destination + "</em></p>");
+            String hostname = System.getenv("HOSTNAME");
+            connectionFactory = new ActiveMQSslConnectionFactory("ssl://" + hostname + ":61617");
+            try {
+                connectionFactory.setTrustStore(new File("/etc/eap-secret-volume/truststore.ks").toURI().toString());
+                connectionFactory.setTrustStorePassword("password");
+                connectionFactory.setKeyStore(new File("/etc/eap-secret-volume/keystore.ks").toURI().toString());
+                connectionFactory.setKeyStorePassword("password");
+            } catch (Exception e) {
+                throw new Error("KeyStore or TrustStore location was invalid:", e);
+            }
             connection = connectionFactory.createConnection();
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageProducer messageProducer = session.createProducer(destination);
