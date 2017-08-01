@@ -83,8 +83,8 @@ public class HelloWorldMDBServletClient extends HttpServlet {
                 destination = queue;
             }
             out.write("<p>Sending messages to <em>" + destination + "</em></p>");
-            String hostname = System.getenv("HOSTNAME");
-            connectionFactory = new ActiveMQSslConnectionFactory("ssl://" + hostname + ":61617");
+            String brokerURL = System.getenv("BROKER_URL");
+            connectionFactory = new ActiveMQSslConnectionFactory("ssl://" + brokerURL + ":61617");
             try {
                 connectionFactory.setTrustStore(new File("/etc/eap-secret-volume/client_truststore.jks").toURI().toString());
                 connectionFactory.setTrustStorePassword("password");
