@@ -85,15 +85,24 @@ public class HelloWorldMDBServletClient extends HttpServlet {
             out.write("<p>Sending messages to <em>" + destination + "</em></p>");
             String brokerURL = System.getenv("BROKER_URL");
             connectionFactory = new ActiveMQSslConnectionFactory("ssl://" + brokerURL + ":61617");
+            String amqTrustStoreKeyStoreDir = System.getenv("AMQ_KEYSTORE_TRUSTSTORE_DIR");
+            String amqTrustStore = System.getenv("AMQ_TRUSTSTORE");
+            String amqTrustStorePassword = System.getenv("AMQ_TRUSTSTORE_PASSWORD");
+            String amqKeyStore = System.getenv("AMQ_KEYSTORE");
+            String amqKeyStorePassword = System.getenv("AMQ_KEYSTORE_PASSWORD");
             try {
-                connectionFactory.setTrustStore(new File("/etc/eap-secret-volume/client_truststore.jks").toURI().toString());
-                connectionFactory.setTrustStorePassword("password");
-                connectionFactory.setKeyStore(new File("/etc/eap-secret-volume/client_keystore.jks").toURI().toString());
-                connectionFactory.setKeyStorePassword("password");
+                String trustStoreLocation = amqTrustStoreKeyStoreDir + "/" + amqTrustStore;
+                String keyStoreLocation = amqTrustStoreKeyStoreDir + "/" + amqKeyStore;
+                connectionFactory.setTrustStore(new File(trustStoreLocation).toURI().toString());
+                connectionFactory.setTrustStorePassword(amqTrustStorePassword);
+                connectionFactory.setKeyStore(new File(keyStoreLocation).toURI().toString());
+                connectionFactory.setKeyStorePassword(amqKeyStorePassword);
             } catch (Exception e) {
                 throw new Error("KeyStore or TrustStore location was invalid:", e);
             }
-            connection = connectionFactory.createConnection();
+            String userName = System.getenv("AMQ_USER");
+            String userPassword = System.getenv("AMQ_PASSWORD");
+            connection = connectionFactory.createConnection(userName, userPassword);
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageProducer messageProducer = session.createProducer(destination);
             connection.start();
